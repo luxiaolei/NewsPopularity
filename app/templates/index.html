@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC >
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<html>
+<head>
+  <script src="{{ url_for('static', filename='jquery-2.1.4.min.js') }}" type="text/javascript" charset="utf-8"></script>
+  <script src="{{ url_for('static', filename='d3.v3.js') }}" type="text/javascript" charset="utf-8"></script>
+
+</head>
+<body>
+  <button id='generate'>Gen</button>
+  <table id="barcharts">
+
+
+  </table>
+
+
+
+<script>
+$(function(){
+  $('#generate').click(function(){
+    $.getJSON('/data', function(data) {
+
+      for(i in data['columns']){
+        var col = data['columns'][i]
+
+
+        var tr  = $("<tr><td id="+col+"><h3>"+col+"</h3></td></tr>")
+        tr.appendTo($('#barcharts'))
+
+        barChart(data[col], '#'+col)
+
+      }
+
+
+    })
+
+
+  })
+})
+
+
+</script>
+  <script src="{{ url_for('static', filename='barchart.js') }}" type="text/javascript" charset="utf-8"></script>
+</body>
+</html>
