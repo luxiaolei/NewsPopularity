@@ -26,19 +26,15 @@ def sparsityCheck(newdf, sparseValue=0, threlhodDensity_for_print= 0.5):
     """
     df = newdf.ix[:, newdf.columns.difference(['newsTitle'])]
     dfsparse = df.to_sparse(fill_value= sparseValue)
-    print("If treate {0} as sparse value, then the dataFrame's\
-            density is {1}").format(sparseValue, dfsparse.density)
-
-    sparseCols= []
-    print "*"*20
+    print("If treate {0} as sparse value, then the dataFrame's density is {1}")\
+            .format(sparseValue, dfsparse.density)
+    sparseInfo= []
     for col in df.columns:
         dfsparse = df[col].to_sparse(fill_value= sparseValue)
         if dfsparse.density <= threlhodDensity_for_print:
-            print("The density for column {0} is {1}, which is below the threlhod\
-                ").format(col, dfsparse.density)
-            sparseCols.append(col)
-    print "*"*20
-    print('The list for spare columns are: {0}').format(sparseCols)
+            sparseInfo.append([col,dfsparse.density])
+    ansDf = pd.DataFrame(sparseInfo, columns=['columnName', 'SparseDensity'])
+    print ansDf
 
 
 def outliersCheck(newdf, n_times_std =3, outlierPercentagePrintThrelhod=0.01):
@@ -53,13 +49,12 @@ def outliersCheck(newdf, n_times_std =3, outlierPercentagePrintThrelhod=0.01):
         mean, std = df[col].mean(), df[col].std()
         outliers = df[col][np.abs(df[col] - mean) >= n_times_std* std]
         outliers_count = outliers.shape[0]
-        outlier_cout_list.append(outliers_count)
+
         percentage = float(outliers_count)/ count
         if percentage >= outlierPercentagePrintThrelhod:
-            print('Column {0} contains {1} number of outliers. The percentage is {2}')\
-                 .format(col, outliers_count, percentage)
-    outlierSummary = pd.DataFrame(np.array([df.columns.values, outlier_cout_list]).T,\
-                    columns=['ColumnName','OutlierCount'])
+            outlier_cout_list.append([col, outliers_count, percentage])
+    outlierSummary = pd.DataFrame(outlier_cout_list,\
+                    columns=['ColumnName','OutlierCount', 'CountPercentage'])
     print outlierSummary
 
 
