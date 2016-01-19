@@ -78,6 +78,7 @@ def historgramPrint(newdf,binNumber = 25):
     df = newdf.ix[:, newdf.columns.difference(['newsTitle'])]
     for column in df:
         plt.hist(df[column],binNumber)
+        plt.title(column)
         plt.show()
         plt.close()
     
