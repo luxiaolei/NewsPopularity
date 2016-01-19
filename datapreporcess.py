@@ -19,10 +19,10 @@ def dataReformat(Rawdatapath):
     newdf['newsTitle'] = newsTitle
     return newdf
 
-def sparsityCheck(newdf, sparseValue=0, threlhodDensity_for_print= 0.5):
+def sparsityCheck(newdf, sparseValue=0, thresholdDensity_for_print= 0.5):
     """
     print dataframe's density with given defined sparseValue
-    print the columns whose density is samller than the threlhodDensity_for_print
+    print the columns whose density is samller than the thresholdDensity_for_print
     """
     df = newdf.ix[:, newdf.columns.difference(['newsTitle'])]
     dfsparse = df.to_sparse(fill_value= sparseValue)
@@ -31,13 +31,13 @@ def sparsityCheck(newdf, sparseValue=0, threlhodDensity_for_print= 0.5):
     sparseInfo= []
     for col in df.columns:
         dfsparse = df[col].to_sparse(fill_value= sparseValue)
-        if dfsparse.density <= threlhodDensity_for_print:
+        if dfsparse.density <= thresholdDensity_for_print:
             sparseInfo.append([col,dfsparse.density])
     ansDf = pd.DataFrame(sparseInfo, columns=['columnName', 'SparseDensity'])
     print ansDf
 
 
-def outliersCheck(newdf, n_times_std =3, outlierPercentagePrintThrelhod=0.01):
+def outliersCheck(newdf, n_times_std =3, outlierPercentagePrintThreshold=0.01):
     """
     For each columns, print the data percentage for which lies below
     n_times_std times of the std, or larger.
@@ -51,32 +51,36 @@ def outliersCheck(newdf, n_times_std =3, outlierPercentagePrintThrelhod=0.01):
         outliers_count = outliers.shape[0]
 
         percentage = float(outliers_count)/ count
-        if percentage >= outlierPercentagePrintThrelhod:
+        if percentage >= outlierPercentagePrintThreshold:
             outlier_cout_list.append([col, outliers_count, percentage])
     outlierSummary = pd.DataFrame(outlier_cout_list,\
                     columns=['ColumnName','OutlierCount', 'CountPercentage'])
     print outlierSummary
 
 
-def collinearityCheck(newdf, variationThrehod= 0.1):
+def collinearityCheck(newdf, varianceThreshold= 0.1):
     """
     PCA method, use the eigen values of the correlation matrix to check the collinearity
     If the eigenvalue is close to zero, it means, no variation, or collinear to Other columns
-    Print the corresponding columns if the eigenvalue is smaller than variationThrehod value
+    Print the corresponding columns if the eigenvalue is smaller than varianceThreshold value
     """
     df = newdf.ix[:, newdf.columns.difference(['newsTitle'])]
     corrMatrix = np.corrcoef(df.values, rowvar=0)
     eigenvalues, eigenvectos = np.linalg.eig(corrMatrix)
     ans = []
     for col, eigV in zip(df.columns, eigenvalues):
-        if eigV <= variationThrehod:
+        if eigV <= varianceThreshold:
             ans.append([col,eigV])
     ansDf = pd.DataFrame(ans, columns=['columnName', 'Eigenvalue'])
     print ansDf
 
-
-
-
+def historgramPrint(newdf,binNumber = 25):
+    df = newdf.ix[:, newdf.columns.difference(['newsTitle'])]
+    for column in df:
+        plt.hist(df[column],binNumber)
+        plt.show()
+        plt.close()
+    
 if __name__=='__main__':
     datapath = 'rawdata/OnlineNewsPopularity.csv'
 
@@ -84,10 +88,10 @@ if __name__=='__main__':
     newdf = dataReformat(datapath)
 
     print "**Sparseness Check!**"*3
-    sparsityCheck(newdf, sparseValue=0, threlhodDensity_for_print= 0.5)
+    sparsityCheck(newdf, sparseValue=0, thresholdDensity_for_print= 0.5)
 
     print "**Outliers Check!**"*3
-    outliersCheck(newdf, n_times_std =3, outlierPercentagePrintThrelhod=0.01)
+    outliersCheck(newdf, n_times_std =3, outlierPercentagePrintThreshold=0.01)
 
     print "**collinearity Check!**"*3
-    collinearityCheck(newdf, variationThrehod= 0.1)
+    collinearityCheck(newdf, varianceThreshold= 0.1)
